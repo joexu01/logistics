@@ -12,11 +12,11 @@ const (
 	TransientKeyOrderInput            = "order_input"
 	TransientKeyLogisticOperatorInput = "operator_info"
 
-	MSPIDManufacturer = "Manufacturer"
-	MSPIDRetailer1    = "Retailer1"
-	MSPIDRetailer2    = "Retailer2"
-	MSPIDLogistic     = "Logistic"
-	MSPIDRegulator    = "Regulator"
+	MSPIDManufacturer = "ManufacturerMSP"
+	MSPIDRetailer1    = "Retailer1MSP"
+	MSPIDRetailer2    = "Retailer2MSP"
+	MSPIDLogistic     = "LogisticMSP"
+	MSPIDRegulator    = "RegulatorMSP"
 
 	CollectionTransaction1 = "transactionCollection1"
 	CollectionTransaction2 = "transactionCollection2"

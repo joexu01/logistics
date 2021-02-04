@@ -1,7 +1,7 @@
 [
   {
     "name": "transactionCollection1",
-    "policy": "OR('Manufacturer.member', 'Retailer1.member', 'Regulator.member', 'Logistics.member')",
+    "policy": "OR('ManufacturerMSP.member', 'Retailer1MSP.member', 'RegulatorMSP.member', 'LogisticsMSP.member')",
     "requiredPeerCount": 1,
     "maxPeerCount": 1,
     "blockToLive":0,

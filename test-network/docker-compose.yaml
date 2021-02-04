@@ -1,0 +1,19 @@
+version: '2'
+
+volumes:
+  orderer.example.com:
+  peer0.manufacturer.example.com:
+  peer0.retailer1.example.com:
+  peer0.retailer2.example.com:
+  peer0.logistics.example.com:
+  peer0.regulator.example.com:
+
+networks:
+  test:
+
+services:
+
+  orderer.example.com:
+    container_name: orderer.example.com
+    image: hyperledger/fabric-orderer:2.2.0
+    environment:
