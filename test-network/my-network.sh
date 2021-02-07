@@ -80,5 +80,15 @@ if [ $? -ne 0 ]; then
   fatalln "Create channel failed"
 fi
 
+# -------------------------------------------------- #
+# 部署链码
+# -------------------------------------------------- #
+
+scripts/deployCC.sh "logisticschannel" "logisticscc" "../chaincode" "go" "1.0" "1"
+
+if [ $? -ne 0 ]; then
+  fatalln "Deploying chaincode failed"
+fi
+
 # network down
 #docker-compose -f docker/docker-compose-ca.yaml -f docker/docker-compose-couch.yaml -f docker/docker-compose-test-net.yaml down --volumes --remove-orphans
