@@ -49,6 +49,18 @@ infoln "Create Logistics Identities"
 
 createLogistics
 
+infoln "Create Retailer1 Identities"
+
+createRetailer1
+
+infoln "Create Retailer2 Identities"
+
+createRetailer2
+
+infoln "Create Regulator Identities"
+
+createRegulator
+
 infoln "Create Orderer Org Identities"
 
 createOrderer

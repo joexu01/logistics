@@ -137,16 +137,28 @@ infoln "Creating channel ${CHANNEL_NAME}"
 createChannel
 
 ## Join all the peers to the channel
-infoln "Join Org1 peers to the channel..."
+infoln "Join Manufacturer peers to the channel..."
 joinChannel 1
-infoln "Join Org2 peers to the channel..."
+infoln "Join Logistics peers to the channel..."
 joinChannel 2
+infoln "Join Retailer1 peers to the channel..."
+joinChannel 3
+infoln "Join Retailer2 peers to the channel..."
+joinChannel 4
+infoln "Join Regulator peers to the channel..."
+joinChannel 5
 
 ## Set the anchor peers for each org in the channel
-infoln "Updating anchor peers for org1..."
+infoln "Updating anchor peers for manufacturer..."
 updateAnchorPeers 1
-infoln "Updating anchor peers for org2..."
+infoln "Updating anchor peers for logistics..."
 updateAnchorPeers 2
+infoln "Updating anchor peers for retailer1..."
+updateAnchorPeers 3
+infoln "Updating anchor peers for retailer2..."
+updateAnchorPeers 4
+infoln "Updating anchor peers for regulator..."
+updateAnchorPeers 5
 
 successln "Channel successfully joined"
 

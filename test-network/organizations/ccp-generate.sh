@@ -47,3 +47,33 @@ CAPEM=organizations/peerOrganizations/logistics.example.com/ca/ca.logistics.exam
 
 echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGCAP)" > organizations/peerOrganizations/logistics.example.com/connection-logistics.json
 echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGCAP)" > organizations/peerOrganizations/logistics.example.com/connection-logistics.yaml
+
+ORG=retailer1
+ORGCAP=Retailer1
+P0PORT=11051
+CAPORT=10054
+PEERPEM=organizations/peerOrganizations/retailer1.example.com/tlsca/tlsca.retailer1.example.com-cert.pem
+CAPEM=organizations/peerOrganizations/retailer1.example.com/ca/ca.retailer1.example.com-cert.pem
+
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGCAP)" > organizations/peerOrganizations/retailer1.example.com/connection-retailer1.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGCAP)" > organizations/peerOrganizations/retailer1.example.com/connection-retailer1.yaml
+
+ORG=retailer2
+ORGCAP=Retailer2
+P0PORT=13051
+CAPORT=11054
+PEERPEM=organizations/peerOrganizations/retailer2.example.com/tlsca/tlsca.retailer2.example.com-cert.pem
+CAPEM=organizations/peerOrganizations/retailer2.example.com/ca/ca.retailer2.example.com-cert.pem
+
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGCAP)" > organizations/peerOrganizations/retailer2.example.com/connection-retailer2.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGCAP)" > organizations/peerOrganizations/retailer2.example.com/connection-retailer2.yaml
+
+ORG=regulator
+ORGCAP=Regulator
+P0PORT=15051
+CAPORT=12054
+PEERPEM=organizations/peerOrganizations/regulator.example.com/tlsca/tlsca.regulator.example.com-cert.pem
+CAPEM=organizations/peerOrganizations/regulator.example.com/ca/ca.regulator.example.com-cert.pem
+
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGCAP)" > organizations/peerOrganizations/regulator.example.com/connection-regulator.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM $ORGCAP)" > organizations/peerOrganizations/regulator.example.com/connection-regulator.yaml

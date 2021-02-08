@@ -22,13 +22,14 @@ VERBOSE=${12:-"false"}
 ######################################
 
 # '--signature-policy "OR('"'"'ManufacturerMSP.peer'"'"','"'"'LogisticsMSP.peer'"'"')"'
+# OR('"'"'ManufacturerMSP.peer'"'"','"'"'LogisticsMSP.peer'"'"','"'"'Retailer1MSP.peer'"'"','"'"'Retailer2MSP.peer'"'"','"'"'RegulatorMSP.peer'"'"')
 
 CHANNEL_NAME="logisticschannel"
 CC_SRC_LANGUAGE="go"
 CC_VERSION="1.0"
 CC_SEQUENCE="1"
 CC_INIT_FCN="NA"
-CC_END_POLICY='--signature-policy OR('"'"'ManufacturerMSP.peer'"'"','"'"'LogisticsMSP.peer'"'"')'
+CC_END_POLICY='--signature-policy OR('"'"'ManufacturerMSP.peer'"'"','"'"'LogisticsMSP.peer'"'"','"'"'Retailer1MSP.peer'"'"','"'"'Retailer2MSP.peer'"'"','"'"'RegulatorMSP.peer'"'"')'
 CC_COLL_CONFIG="--collections-config ../asset-transfer-private-data/chaincode-go/collections_config.json"
 CC_RUNTIME_LANGUAGE=golang
 DELAY="3"
@@ -254,44 +255,66 @@ successln "Finished vendoring Go dependencies"
 ## package the chaincode
 packageChaincode
 
-## Install chaincode on peer0.org1 and peer0.org2
+## Install chaincode on ...
 infoln "Installing chaincode on peer0.manufacturer..."
 installChaincode 1
-infoln "Install chaincode on peer0.org2..."
+infoln "Install chaincode on peer0.logistics..."
 installChaincode 2
+infoln "Install chaincode on peer0.retailer1..."
+installChaincode 3
+infoln "Install chaincode on peer0.retailer2..."
+installChaincode 4
+infoln "Install chaincode on peer0.regulator..."
+installChaincode 5
 
 ## query whether the chaincode is installed
 queryInstalled 1
-
-## approve the definition for org1
+## approve the definition for manufacturer
 approveForMyOrg 1
+
+queryInstalled 2
+approveForMyOrg 2
+
+queryInstalled 3
+approveForMyOrg 3
+
+queryInstalled 4
+approveForMyOrg 4
+
+queryInstalled 5
+approveForMyOrg 5
 
 ## check whether the chaincode definition is ready to be committed
 ## expect org1 to have approved and org2 not to
-checkCommitReadiness 1 "\"LogisticsMSP\": false" "\"ManufacturerMSP\": true"
-checkCommitReadiness 2 "\"LogisticsMSP\": false" "\"ManufacturerMSP\": true"
+#checkCommitReadiness 1 "\"LogisticsMSP\": false" "\"ManufacturerMSP\": true"
+#checkCommitReadiness 2 "\"LogisticsMSP\": false" "\"ManufacturerMSP\": true"
 
 ## now approve also for org2
-approveForMyOrg 2
+#approveForMyOrg 2
 
 ## check whether the chaincode definition is ready to be committed
 ## expect them both to have approved
-checkCommitReadiness 1 "\"LogisticsMSP\": true" "\"ManufacturerMSP\": true"
-checkCommitReadiness 2 "\"LogisticsMSP\": true" "\"ManufacturerMSP\": true"
+#checkCommitReadiness 1 "\"LogisticsMSP\": true" "\"ManufacturerMSP\": true"
+#checkCommitReadiness 2 "\"LogisticsMSP\": true" "\"ManufacturerMSP\": true"
 
-## now that we know for sure both orgs have approved, commit the definition
-commitChaincodeDefinition 1 2
+
+
+## now that we know for sure all orgs have approved, commit the definition
+commitChaincodeDefinition 1 2 3 4 5
 
 ## query on both orgs to see that the definition committed successfully
 queryCommitted 1
 queryCommitted 2
+queryCommitted 3
+queryCommitted 4
+queryCommitted 5
 
 ## Invoke the chaincode - this does require that the chaincode have the 'initLedger'
 ## method defined
 if [ "$CC_INIT_FCN" = "NA" ]; then
   infoln "Chaincode initialization is not required"
 else
-  chaincodeInvokeInit 1 2
+  chaincodeInvokeInit 1 2 3 4 5
 fi
 
 exit 0
