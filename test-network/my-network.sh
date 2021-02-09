@@ -69,7 +69,7 @@ createOrderer
 infoln "Generate CCP files for manufacturer and logistics"
 ./organizations/ccp-generate.sh
 
-infoln "Generate Genesis Block(Step2. create Consortium)"
+infoln "Generate Genesis Block(Create Consortium)"
 # Generate Genesis Block(Step2. create Consortium)
 set -x
 configtxgen -profile LogisticsOrdererGenesis -channelID system-channel -outputBlock ./system-genesis-block/genesis.block

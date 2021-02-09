@@ -113,6 +113,108 @@ Organizations:
       - Host: peer0.logistics.example.com
         Port: 9051
 
+  - &Retailer1
+    # DefaultOrg defines the organization which is used in the sampleconfig
+    # of the fabric.git development environment
+    Name: Retailer1MSP
+
+    # ID to load the MSP definition as
+    ID: Retailer1MSP
+
+    MSPDir: ../organizations/peerOrganizations/retailer1.example.com/msp
+
+    # Policies defines the set of policies at this level of the config tree
+    # For organization policies, their canonical path is usually
+    #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Retailer1MSP.admin', 'Retailer1MSP.peer', 'Retailer1MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Retailer1MSP.admin', 'Retailer1MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Retailer1MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Retailer1MSP.peer')"
+
+    AnchorPeers:
+      # AnchorPeers defines the location of peers which can be used
+      # for cross org gossip communication.  Note, this value is only
+      # encoded in the genesis block in the Application section context
+      - Host: peer0.retailer1.example.com
+        Port: 11051
+
+  - &Retailer2
+    # DefaultOrg defines the organization which is used in the sampleconfig
+    # of the fabric.git development environment
+    Name: Retailer2MSP
+
+    # ID to load the MSP definition as
+    ID: Retailer2MSP
+
+    MSPDir: ../organizations/peerOrganizations/retailer2.example.com/msp
+
+    # Policies defines the set of policies at this level of the config tree
+    # For organization policies, their canonical path is usually
+    #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Retailer2MSP.admin', 'Retailer2MSP.peer', 'Retailer2MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Retailer2MSP.admin', 'Retailer2MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Retailer2MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Retailer2MSP.peer')"
+
+    AnchorPeers:
+      # AnchorPeers defines the location of peers which can be used
+      # for cross org gossip communication.  Note, this value is only
+      # encoded in the genesis block in the Application section context
+      - Host: peer0.retailer2.example.com
+        Port: 13051
+
+  - &Regulator
+    # DefaultOrg defines the organization which is used in the sampleconfig
+    # of the fabric.git development environment
+    Name: RegulatorMSP
+
+    # ID to load the MSP definition as
+    ID: RegulatorMSP
+
+    MSPDir: ../organizations/peerOrganizations/regulator.example.com/msp
+
+    # Policies defines the set of policies at this level of the config tree
+    # For organization policies, their canonical path is usually
+    #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('RegulatorMSP.admin', 'RegulatorMSP.peer', 'RegulatorMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('RegulatorMSP.admin', 'RegulatorMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('RegulatorMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('RegulatorMSP.peer')"
+
+    AnchorPeers:
+      # AnchorPeers defines the location of peers which can be used
+      # for cross org gossip communication.  Note, this value is only
+      # encoded in the genesis block in the Application section context
+      - Host: peer0.regulator.example.com
+        Port: 15051
+
 ################################################################################
 #
 #   SECTION: Capabilities
@@ -330,6 +432,9 @@ Profiles:
         Organizations:
           - *Manufacturer
           - *Logistics
+          - *Retailer1
+          - *Retailer2
+          - *Regulator
 
   #
   LogisticsChannel:
@@ -340,6 +445,9 @@ Profiles:
       Organizations:
         - *Manufacturer
         - *Logistics
+        - *Retailer1
+        - *Retailer2
+        - *Regulator
       Capabilities:
         <<: *ApplicationCapabilities
 

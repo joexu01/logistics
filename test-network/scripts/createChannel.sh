@@ -36,7 +36,7 @@ createChannelTx() {
 # configtxgen -profile LogisticsChannel -outputAnchorPeersUpdate ./channel-artifacts/LogisticsMSPanchors.tx -channelID logisticschannel -asOrg LogisticsMSP
 createAnchorPeerTx() {
 
-  for orgmsp in ManufacturerMSP LogisticsMSP; do
+  for orgmsp in ManufacturerMSP LogisticsMSP Retailer1MSP Retailer2MSP RegulatorMSP; do
 
     infoln "Generating anchor peer update transaction for ${orgmsp}"
     set -x
@@ -66,7 +66,7 @@ createChannel() {
     let rc=$res
     COUNTER=$(expr $COUNTER + 1)
   done
-  cat log.txt
+#  cat log.txt
   verifyResult $res "Channel creation failed"
   successln "Channel '$CHANNEL_NAME' created"
 }
@@ -88,7 +88,7 @@ joinChannel() {
     let rc=$res
     COUNTER=$(expr $COUNTER + 1)
   done
-  cat log.txt
+#  cat log.txt
   verifyResult $res "After $MAX_RETRY attempts, peer0.${ORG} has failed to join channel '$CHANNEL_NAME' "
 }
 
@@ -108,7 +108,7 @@ updateAnchorPeers() {
     let rc=$res
     COUNTER=$(expr $COUNTER + 1)
   done
-  cat log.txt
+#  cat log.txt
   verifyResult $res "Anchor peer update failed"
   successln "Anchor peers updated for org '$CORE_PEER_LOCALMSPID' on channel '$CHANNEL_NAME'"
   sleep $DELAY

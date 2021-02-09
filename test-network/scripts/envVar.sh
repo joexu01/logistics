@@ -35,8 +35,10 @@ setGlobals() {
   else
     USING_ORG="${OVERRIDE_ORG}"
   fi
-  infoln "Using organization ${USING_ORG}"
+
   if [ "$USING_ORG" -eq 1 ]; then
+    infoln "Using organization manufacturer"
+
     export CORE_ORG_FULL_NAME="manufacturer"
     export CORE_ORG_FULL_NAME_CAPS="MANUFACTURER"
 
@@ -46,6 +48,8 @@ setGlobals() {
     export CORE_PEER_ADDRESS=localhost:7051
 
   elif [ $USING_ORG -eq 2 ]; then
+    infoln "Using organization logistics"
+
     export CORE_ORG_FULL_NAME="logistics"
     export CORE_ORG_FULL_NAME_CAPS="LOGISTICS"
 
@@ -55,6 +59,8 @@ setGlobals() {
     export CORE_PEER_ADDRESS=localhost:9051
 
   elif [ $USING_ORG -eq 3 ]; then
+    infoln "Using organization retailer1"
+
     export CORE_ORG_FULL_NAME="retailer1"
     export CORE_ORG_FULL_NAME_CAPS="RETAILER1"
 
@@ -64,6 +70,8 @@ setGlobals() {
     export CORE_PEER_ADDRESS=localhost:11051
 
   elif [ $USING_ORG -eq 4 ]; then
+    infoln "Using organization retailer2"
+
     export CORE_ORG_FULL_NAME="retailer2"
     export CORE_ORG_FULL_NAME_CAPS="RETAILER2"
 
@@ -73,6 +81,8 @@ setGlobals() {
     export CORE_PEER_ADDRESS=localhost:13051
 
   elif [ $USING_ORG -eq 5 ]; then
+    infoln "Using organization regulator"
+
     export CORE_ORG_FULL_NAME="regulator"
     export CORE_ORG_FULL_NAME_CAPS="REGULATOR"
 
