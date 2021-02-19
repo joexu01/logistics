@@ -7,7 +7,7 @@ const (
 	CompositeKeyProduct          = "product"
 	CompositeKeyOrder            = "order"
 	CompositeKeyLogistics        = "logistics"
-	CompositeKeyLogisticsPrivate = "logistics_pri"
+	CompositeKeyLogisticsPrivate = "logpri"
 
 	TransientKeyOrderInput            = "order_input"
 	TransientKeyLogisticOperatorInput = "operator_info"
@@ -15,10 +15,10 @@ const (
 	MSPIDManufacturer = "ManufacturerMSP"
 	MSPIDRetailer1    = "Retailer1MSP"
 	MSPIDRetailer2    = "Retailer2MSP"
-	MSPIDLogistic     = "LogisticMSP"
+	MSPIDLogistic     = "LogisticsMSP"
 	MSPIDRegulator    = "RegulatorMSP"
 
 	CollectionTransaction1 = "transactionCollection1"
 	CollectionTransaction2 = "transactionCollection2"
-	CollectionLogistics    = "logisticCollection"
+	CollectionLogistics    = "logisticsCollection"
 )

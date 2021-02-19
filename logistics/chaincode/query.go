@@ -9,6 +9,11 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
+type LogisticsCombineRecord struct {
+	Public  *LogisticsRecord        `json:"public"`
+	Private *PrivateLogisticsRecord `json:"private"`
+}
+
 // ReadProductInfo returns detailed product information
 func (h *ContractHandler) ReadProductInfo(ctx contractapi.TransactionContextInterface,
 	batchNum string) (*ProductInfo, error) {
@@ -26,8 +31,8 @@ func (h *ContractHandler) ReadProductInfo(ctx contractapi.TransactionContextInte
 		return nil, fmt.Errorf("function ReadProductInfo error: failed to get state: %v", err)
 	}
 
-	if bytes != nil {
-		return nil,  fmt.Errorf("function ReadProductInfo: product serial number %s doesn't exist", batchNum)
+	if bytes == nil {
+		return nil, fmt.Errorf("function ReadProductInfo: product serial number %s doesn't exist", batchNum)
 	}
 
 	info := &ProductInfo{}
@@ -59,4 +64,60 @@ func (h *ContractHandler) ReadOrderInfo(ctx contractapi.TransactionContextInterf
 	}
 
 	return order, nil
+}
+
+func (h *ContractHandler) ReadLogisticsRecord(ctx contractapi.TransactionContextInterface,
+	trackingNum string) (*LogisticsRecord, error) {
+	trackingCompositeKey, err := ctx.GetStub().CreateCompositeKey(CompositeKeyLogistics, []string{trackingNum})
+	if err != nil {
+		return nil, fmt.Errorf("function ReadLogisticsRecord: failed to create composite key: %v", err)
+	}
+	logisticsRecordJSONBytes, err := ctx.GetStub().GetState(trackingCompositeKey)
+	if err != nil {
+		return nil, fmt.Errorf("function ReadLogisticsRecord: error querying world state: %v", err)
+	}
+
+	logisticsRecord := &LogisticsRecord{}
+
+	_ = json.Unmarshal(logisticsRecordJSONBytes, logisticsRecord)
+	return logisticsRecord, nil
+}
+
+func (h *ContractHandler) ReadLogisticsPriRecord(ctx contractapi.TransactionContextInterface,
+	trackingNum string) (*LogisticsCombineRecord, error) {
+	err := verifyClientOrgMatchesPeerOrg(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("function ReadLogisticsPriRecord: %v", err)
+	}
+
+	trackingCompositeKey, err := ctx.GetStub().CreateCompositeKey(CompositeKeyLogistics, []string{trackingNum})
+	if err != nil {
+		return nil, fmt.Errorf("function ReadLogisticsPriRecord: failed to create composite key: %v", err)
+	}
+	logisticsRecordJSONBytes, err := ctx.GetStub().GetState(trackingCompositeKey)
+	if err != nil {
+		return nil, fmt.Errorf("function ReadLogisticsPriRecord: error querying world state: %v", err)
+	}
+
+	logisticsRecord := &LogisticsRecord{}
+
+	_ = json.Unmarshal(logisticsRecordJSONBytes, logisticsRecord)
+
+	priTrackingKey, err := ctx.GetStub().CreateCompositeKey(CompositeKeyLogisticsPrivate, []string{trackingNum})
+	if err != nil {
+		return nil, fmt.Errorf("function ReadLogisticsPriRecord: failed to create composite key: %v", err)
+	}
+	priTrackingJSONBytes, err := ctx.GetStub().GetPrivateData(CollectionLogistics, priTrackingKey)
+	if err != nil {
+		return nil, fmt.Errorf("function ReadLogisticsPriRecord: error querying world state: %v", err)
+	}
+
+	privateLogisticsRecord := &PrivateLogisticsRecord{}
+	_ = json.Unmarshal(priTrackingJSONBytes, privateLogisticsRecord)
+
+	compositeRecord := &LogisticsCombineRecord{
+		Public:  logisticsRecord,
+		Private: privateLogisticsRecord,
+	}
+	return compositeRecord, err
 }

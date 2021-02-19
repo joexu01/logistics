@@ -114,7 +114,7 @@ func (h *ContractHandler) NewProductInfo(ctx contractapi.TransactionContextInter
 }
 
 // NewOrder is always called by the manufacturer.
-// Orders data will be stored in the sideDBs of the collections.
+// Orders data will be stored in the sideDBs of the collection members.
 // Order information related arguments will be provided by a transient.
 func (h *ContractHandler) NewOrder(ctx contractapi.TransactionContextInterface) error {
 	err := verifyManufacturerMSPID(ctx)
@@ -135,7 +135,7 @@ func (h *ContractHandler) NewOrder(ctx contractapi.TransactionContextInterface) 
 
 	orderInputJSON, ok := transientMap[TransientKeyOrderInput]
 	if !ok {
-		return fmt.Errorf("function NewOrder: asset not found in the transient map input")
+		return fmt.Errorf("function NewOrder: order info not found in the transient map input")
 	}
 
 	type orderInput struct {
@@ -211,7 +211,6 @@ func (h *ContractHandler) NewOrder(ctx contractapi.TransactionContextInterface) 
 }
 
 // UpdateLogisticRecord will append the latest state of logistics item to the record.
-// This function can be called by logistics company only.
 func (h *ContractHandler) UpdateLogisticRecord(ctx contractapi.TransactionContextInterface,
 	trackingNum, status string) error {
 
@@ -219,15 +218,6 @@ func (h *ContractHandler) UpdateLogisticRecord(ctx contractapi.TransactionContex
 	err := verifyClientOrgMatchesPeerOrg(ctx)
 	if err != nil {
 		return fmt.Errorf("function UpdateLogisticRecord: %v", err)
-	}
-
-	transientMap, err := ctx.GetStub().GetTransient()
-	if err != nil {
-		return fmt.Errorf("function UpdateLogisticRecord: error getting transient: %v", err)
-	}
-	operatorInfo, ok := transientMap[TransientKeyLogisticOperatorInput]
-	if !ok {
-		return fmt.Errorf("function UpdateLogisticRecord: error getting transient info")
 	}
 
 	trackingCompositeKey, err := ctx.GetStub().CreateCompositeKey(CompositeKeyLogistics, []string{trackingNum})
@@ -271,6 +261,15 @@ func (h *ContractHandler) UpdateLogisticRecord(ctx contractapi.TransactionContex
 	}
 
 	if mspID == MSPIDLogistic {
+		transientMap, err := ctx.GetStub().GetTransient()
+		if err != nil {
+			return fmt.Errorf("function UpdateLogisticRecord: error getting transient: %v", err)
+		}
+		operatorInfo, ok := transientMap[TransientKeyLogisticOperatorInput]
+		if !ok {
+			return fmt.Errorf("function UpdateLogisticRecord: error getting transient info")
+		}
+
 		priTrackingKey, err := ctx.GetStub().CreateCompositeKey(CompositeKeyLogisticsPrivate, []string{trackingNum})
 		if err != nil {
 			return fmt.Errorf("function UpdateLogisticRecord: failed to create composite key: %v", err)
@@ -287,7 +286,6 @@ func (h *ContractHandler) UpdateLogisticRecord(ctx contractapi.TransactionContex
 				return fmt.Errorf("function UpdateLogisticRecord: error unmarshaling order input: %v", err)
 			}
 		}
-
 		clientID, err := ctx.GetClientIdentity().GetID()
 		if err != nil {
 			return fmt.Errorf("function UpdateLogisticRecord: error getting clientID: %v", err)
@@ -300,13 +298,11 @@ func (h *ContractHandler) UpdateLogisticRecord(ctx contractapi.TransactionContex
 		}
 
 		privateLogisticsRecord.Items = append(privateLogisticsRecord.Items, priItem)
-
 		priRecordJSONBytes, err := json.Marshal(privateLogisticsRecord)
 		if err != nil {
 			return fmt.Errorf("function UpdateLogisticRecord: failed to marshal JSON: %v", err)
 		}
-
-		err = ctx.GetStub().PutPrivateData(CollectionLogistics, CompositeKeyLogisticsPrivate, priRecordJSONBytes)
+		err = ctx.GetStub().PutPrivateData(CollectionLogistics, priTrackingKey, priRecordJSONBytes)
 		if err != nil {
 			return fmt.Errorf("function UpdateLogisticRecord: failed to put world state: %v", err)
 		}

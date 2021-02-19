@@ -24,7 +24,7 @@
     }
   },
   {
-    "name": "logisticCollection",
+    "name": "logisticsCollection",
     "policy": "OR('RegulatorMSP.member','LogisticsMSP.member')",
     "requiredPeerCount": 1,
     "maxPeerCount": 1,
