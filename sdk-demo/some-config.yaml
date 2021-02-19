@@ -1,0 +1,248 @@
+version: 1.0.0
+
+client:
+  organization: Manufacturer
+
+  logging:
+    level: debug
+
+  credentialStore:
+
+  # [Optional] BCCSP config for the client. Used by GO SDK.
+  BCCSP:
+    security:
+      enabled: true
+      default:
+        provider: "SW"
+      hashAlgorithm: "SHA2"
+      softVerify: true
+      level: 256
+
+  tlsCerts:
+    # [Optional]. Use system certificate pool when connecting to peers, orderers (for negotiating TLS) Default: false
+    systemCertPool: false
+
+    # [Optional]. Client key and cert for TLS handshake with peers and orderers
+#    client:
+#      cert:
+#        path: "/home/joseph/fabric-tests/logistics-test-3/test-network/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+
+channels:
+  # name of the channel
+  logisticschannel:
+    # Required. list of orderers designated by the application to use for transactions on this
+    # channel. This list can be a result of access control ("org1" can only access "ordererA"), or
+    # operational decisions to share loads from applications among the orderers.  The values must
+    # be "names" of orgs defined under "organizations/peers"
+    # deprecated: not recommended, to override any orderer configuration items, entity matchers should be used.
+    orderers:
+      - orderer.example.com
+
+    # Required. list of peers from participating orgs
+    peers:
+      peer0.manufacturer.example.com:
+        # [Optional]. will this peer be sent transaction proposals for endorsement? The peer must
+        # have the chaincode installed. The app can also use this property to decide which peers
+        # to send the chaincode install request. Default: true
+        endorsingPeer: true
+
+        # [Optional]. will this peer be sent query proposals? The peer must have the chaincode
+        # installed. The app can also use this property to decide which peers to send the
+        # chaincode install request. Default: true
+        chaincodeQuery: true
+
+        # [Optional]. will this peer be sent query proposals that do not require chaincodes, like
+        # queryBlock(), queryTransaction(), etc. Default: true
+        ledgerQuery: true
+
+        # [Optional]. will this peer be the target of the SDK's listener registration? All peers can
+        # produce events but the app typically only needs to connect to one to listen to events.
+        # Default: true
+        eventSource: true
+
+    # [Optional]. The application can use these options to perform channel operations like retrieving channel
+    # config etc.
+    policies:
+      #[Optional] options for retrieving channel configuration blocks
+      queryChannelConfig:
+        #[Optional] min number of success responses (from targets/peers)
+        minResponses: 1
+        #[Optional] channel config will be retrieved for these number of random targets
+        maxTargets: 1
+        #[Optional] retry options for query config block
+        retryOpts:
+          #[Optional] number of retry attempts
+          attempts: 5
+          #[Optional] the back off interval for the first retry attempt
+          initialBackoff: 500ms
+          #[Optional] the maximum back off interval for any retry attempt
+          maxBackoff: 5s
+          #[Optional] he factor by which the initial back off period is exponentially incremented
+          backoffFactor: 2.0
+
+#
+# list of participating organizations in this network
+#
+organizations:
+  Manufacturer:
+    mspid: ManufacturerMSP
+
+    users:
+      Admin:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/manufacturer.example.com/users/Admin@manufacturer.example.com/msp/signcerts/cert.pem
+      User1:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/manufacturer.example.com/users/User1@manufacturer.example.com/msp/signcerts/cert.pem
+
+    peers:
+      - peer0.manufacturer.example.com
+
+    certificateAuthorities:
+      - ca.manufacturer.example.com
+
+  Logistics:
+    mspid: LogisticsMSP
+# logistics
+    users:
+      Admin:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/logistics.example.com/users/Admin@logistics.example.com/msp/signcerts/cert.pem
+      User1:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/logistics.example.com/users/User1@logistics.example.com/msp/signcerts/cert.pem
+
+    peers:
+      - peer0.logistics.example.com
+
+    certificateAuthorities:
+      - ca.logistics.example.com
+
+  Retailer1:
+    mspid: Retailer1MSP
+    # retailer1
+    users:
+      Admin:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/retailer1.example.com/users/Admin@retailer1.example.com/msp/signcerts/cert.pem
+      User1:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/retailer1.example.com/users/User1@retailer1.example.com/msp/signcerts/cert.pem
+
+    peers:
+      - peer0.retailer1.example.com
+
+    certificateAuthorities:
+      - ca.retailer1.example.com
+
+  Retailer2:
+    mspid: Retailer2MSP
+    # retailer2
+    users:
+      Admin:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/retailer2.example.com/users/Admin@retailer2.example.com/msp/signcerts/cert.pem
+      User1:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/retailer2.example.com/users/User1@retailer2.example.com/msp/signcerts/cert.pem
+
+    peers:
+      - peer0.retailer2.example.com
+
+    certificateAuthorities:
+      - ca.retailer2.example.com
+
+  Regulator:
+    mspid: RegulatorMSP
+    # regulator
+    users:
+      Admin:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/regulator.example.com/users/Admin@regulator.example.com/msp/signcerts/cert.pem
+      User1:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/regulator.example.com/users/User1@regulator.example.com/msp/signcerts/cert.pem
+
+    peers:
+      - peer0.regulator.example.com
+
+    certificateAuthorities:
+      - ca.regulator.example.com
+
+  # Orderer Org name
+  ordererorg:
+    # Membership Service Provider ID for this organization
+    mspID: OrdererMSP
+
+    users:
+      Admin:
+        cert:
+          path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/ordererOrganizations/example.com/users/Admin@example.com/msp/signcerts/cert.pem
+
+
+#
+# List of orderers to send transaction and channel create/update requests to. For the time
+# being only one orderer is needed. If more than one is defined, which one get used by the
+# SDK is implementation specific. Consult each SDK's documentation for its handling of orderers.
+#
+orderers:
+  orderer.example.com:
+    url: orderer.example.com:7050
+
+    grpcOptions:
+      ssl-target-name-override: orderer.example.com
+      fail-fast: false
+
+      #will be taken into consideration if address has no protocol defined, if true then grpc or else grpcs
+      allow-insecure: false
+
+    tlsCACerts:
+      # Certificate location absolute path
+      path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+#
+# List of peers to send various requests to, including endorsement, query
+# and event listener registration.
+#
+peers:
+  peer0.manufacturer.example.com:
+    # this URL is used to send endorsement and query requests
+    # [Optional] Default: Infer from hostname
+    url: peer0.manufacturer.example.com:7051
+
+    grpcOptions:
+      ssl-target-name-override: peer0.manufacturer.example.com
+      fail-fast: false
+
+      #will be taken into consideration if address has no protocol defined, if true then grpc or else grpcs
+      allow-insecure: false
+
+    tlsCACerts:
+      # Certificate location absolute path
+      path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/manufacturer.example.com/tlsca/tlsca.manufacturer.example.com-cert.pem
+
+#
+# Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows
+# certificate management to be done via REST APIs. Application may choose to use a standard
+# Certificate Authority instead of Fabric-CA, in which case this section would not be specified.
+#
+certificateAuthorities:
+  ca.manufacturer.example.com:
+    # [Optional] Default: Infer from hostname
+    url: https://ca.manufacturer.example.com:7054
+    tlsCACerts:
+      # Comma-Separated list of paths
+      path: /home/joseph/fabric-tests/logistics-test-3/test-network/organizations/peerOrganizations/manufacturer.example.com/tlsca/tlsca.manufacturer.example.com-cert.pem
+      # Client key and cert for SSL handshake with Fabric CA
+      client:
+#        key:
+#          path: ${FABRIC_SDK_GO_PROJECT_PATH}/${CRYPTOCONFIG_FIXTURES_PATH}/peerOrganizations/tls.example.com/users/User1@tls.example.com/tls/client.key
+#        cert:
+#          path: ${FABRIC_SDK_GO_PROJECT_PATH}/${CRYPTOCONFIG_FIXTURES_PATH}/peerOrganizations/tls.example.com/users/User1@tls.example.com/tls/client.crt
+
+    # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
+    # needed to enroll and invoke new users.
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    # [Optional] The optional name of the CA.
+    caName: ca.manufacturer.example.com
