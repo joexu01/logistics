@@ -1,12 +1,10 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 	"os/exec"
-	"regexp"
-	"strings"
+	"time"
 )
 
 type Identity struct {
@@ -31,6 +29,8 @@ const TransientKeyOrderInput = "order_input"
 const TransientKeyLogisticOperatorInput = "operator_info"
 
 func main() {
+	format := time.Now().Format("2006-01-02 15:01:05")
+	fmt.Println(format)
 	//order := &orderInput{
 	//	OrderNumber:    "20001",
 	//	BatchNumber:    "10001",
@@ -58,32 +58,32 @@ func main() {
 	//	panic(err)
 	//}
 
-	transient := base64.StdEncoding.EncodeToString([]byte(`快递员002`))
-
-	invoke, err := executeFuncUsingInvoke(
-		"logisticschannel",
-		"logisticscc",
-		"UpdateLogisticRecord",
-		`"30001","发往中转"`,
-		TransientKeyLogisticOperatorInput,
-		transient)
-	if err != nil {
-		fmt.Println(string(invoke))
-		panic(err)
-	}
-
-	all := strings.ReplaceAll(string(invoke), `\`, ``)
-
-	fmt.Println(all)
-
-	invokeRe, err := regexp.Compile(`.+status:([0-9]+)[^p]+payload:"(.+"})`)
-	if err != nil {
-		panic(err)
-	}
-	subMatch := invokeRe.FindSubmatch([]byte(all))
-	for _, each := range subMatch {
-		fmt.Println(string(each), "OK")
-	}
+	//transient := base64.StdEncoding.EncodeToString([]byte(`快递员002`))
+	//
+	//invoke, err := executeFuncUsingInvoke(
+	//	"logisticschannel",
+	//	"logisticscc",
+	//	"UpdateLogisticRecord",
+	//	`"30001","发往中转"`,
+	//	TransientKeyLogisticOperatorInput,
+	//	transient)
+	//if err != nil {
+	//	fmt.Println(string(invoke))
+	//	panic(err)
+	//}
+	//
+	//all := strings.ReplaceAll(string(invoke), `\`, ``)
+	//
+	//fmt.Println(all)
+	//
+	//invokeRe, err := regexp.Compile(`.+status:([0-9]+)[^p]+payload:"(.+"})`)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//subMatch := invokeRe.FindSubmatch([]byte(all))
+	//for _, each := range subMatch {
+	//	fmt.Println(string(each), "OK")
+	//}
 
 	//id := &Identity{}
 	//_ = json.Unmarshal(subMatch[2], id)

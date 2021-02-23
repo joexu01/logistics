@@ -15,7 +15,7 @@ type ProductInfo struct {
 	Amount       int       `json:"amount"`
 	Origin       string    `json:"origin"`
 	Name         string    `json:"name"`
-	LastModified time.Time `json:"last_modified"`
+	LastModified string `json:"last_modified"`
 }
 
 type OrderInfo struct {
@@ -33,7 +33,7 @@ type LogisticsRecord struct {
 }
 
 type RecordSubItem struct {
-	RecordTime time.Time `json:"record_time"`
+	RecordTime string `json:"record_time"`
 	Status     string    `json:"status"`
 }
 
@@ -42,7 +42,7 @@ type PrivateLogisticsRecord struct {
 }
 
 type PrivateSubItem struct {
-	RecordTime time.Time `json:"record_time"`
+	RecordTime string `json:"record_time"`
 	PeerID     string    `json:"peer_id"`
 	Operator   string    `json:"operator"`
 }
@@ -106,7 +106,7 @@ func (h *ContractHandler) NewProductInfo(ctx contractapi.TransactionContextInter
 		Amount:       num,
 		Origin:       origin,
 		Name:         name,
-		LastModified: time.Now(),
+		LastModified: time.Now().Format(`2006-02-06 15:01:05`),
 	}
 	prodBytes, _ := json.Marshal(product)
 
@@ -229,7 +229,7 @@ func (h *ContractHandler) UpdateLogisticRecord(ctx contractapi.TransactionContex
 		return fmt.Errorf("function UpdateLogisticRecord: error querying world state: %v", err)
 	}
 
-	current := time.Now()
+	current := time.Now().Format("2006-01-02 15:01:05")
 
 	logisticsRecord := &LogisticsRecord{}
 
