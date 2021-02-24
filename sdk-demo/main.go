@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
-	"time"
 )
 
 type Identity struct {
@@ -29,8 +29,22 @@ const TransientKeyOrderInput = "order_input"
 const TransientKeyLogisticOperatorInput = "operator_info"
 
 func main() {
-	format := time.Now().Format("2006-01-02 15:01:05")
-	fmt.Println(format)
+	//addrs, err := net.InterfaceAddrs()
+	//if err != nil{
+	//	fmt.Println(err)
+	//	return
+	//}
+	//for _, value := range addrs{
+	//	if ipnet, ok := value.(*net.IPNet); ok && !ipnet.IP.IsLoopback(){
+	//		if ipnet.IP.To4() != nil{
+	//			if strings.HasPrefix(ipnet.IP.String(), "192.168") {
+	//				fmt.Println(ipnet.IP.String())
+	//			}
+	//		}
+	//	}
+	//}
+	_, err := ioutil.ReadDir(`app/app`)
+	fmt.Printf("%+v", err)
 	//order := &orderInput{
 	//	OrderNumber:    "20001",
 	//	BatchNumber:    "10001",
