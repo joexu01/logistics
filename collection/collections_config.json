@@ -20,7 +20,7 @@
     "memberOnlyRead": true,
     "memberOnlyWrite": true,
     "endorsementPolicy": {
-      "signaturePolicy": "OR('ManufacturerMSP.member','Retailer2MSP.member','RegulatorMSP.member')"
+      "signaturePolicy": "OR('ManufacturerMSP.member','Retailer2MSP.member')"
     }
   },
   {

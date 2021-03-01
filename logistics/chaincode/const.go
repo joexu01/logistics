@@ -11,6 +11,7 @@ const (
 
 	TransientKeyOrderInput            = "order_input"
 	TransientKeyLogisticOperatorInput = "operator_info"
+	TransientKeyAcceptOrderInput      = "accept_order_input"
 
 	MSPIDManufacturer = "ManufacturerMSP"
 	MSPIDRetailer1    = "Retailer1MSP"
@@ -21,4 +22,8 @@ const (
 	CollectionTransaction1 = "transactionCollection1"
 	CollectionTransaction2 = "transactionCollection2"
 	CollectionLogistics    = "logisticsCollection"
+
+	OrderStatusAccepted   = "Accepted"
+	OrderStatusRejected   = "Rejected"
+	OrderStatusUnaccepted = "Unaccepted"
 )
