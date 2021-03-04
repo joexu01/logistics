@@ -12,6 +12,7 @@ import (
 )
 
 type ProductInfo struct {
+	BatchNumber  string `json:"batch_number"`
 	Amount       int    `json:"amount"`
 	Origin       string `json:"origin"`
 	Name         string `json:"name"`
@@ -19,13 +20,15 @@ type ProductInfo struct {
 }
 
 type OrderInfo struct {
-	//OrderNumber    string  `json:"order_number"`
+	OrderID        string  `json:"order_id"`
 	BatchNumber    string  `json:"batch_number"`
 	TrackingNumber string  `json:"tracking_number"`
 	Sorter         string  `json:"sorter"` // 分拣员
 	UnitPrice      float32 `json:"unit_price"`
 	Quantity       int     `json:"quantity"`
 	Client         string  `json:"client"`
+	Status         string  `json:"status"`
+	ProductName    string  `json:"product_name"`
 }
 
 type LogisticsRecord struct {
@@ -105,6 +108,7 @@ func (h *ContractHandler) NewProductInfo(ctx contractapi.TransactionContextInter
 
 	current := time.Now().Format("2006-01-02 15:04:05")
 	product := &ProductInfo{
+		BatchNumber:  batchNum,
 		Amount:       num,
 		Origin:       origin,
 		Name:         name,
@@ -119,12 +123,12 @@ func (h *ContractHandler) NewProductInfo(ctx contractapi.TransactionContextInter
 // Orders data will be stored in the sideDBs of the collection members.
 // Order information related arguments will be provided by a transient.
 func (h *ContractHandler) NewOrder(ctx contractapi.TransactionContextInterface) error {
-	err := verifyManufacturerMSPID(ctx)
-	if err != nil {
-		return fmt.Errorf("function NewOrder: %v", err)
-	}
+	//err := verifyManufacturerMSPID(ctx)
+	//if err != nil {
+	//	return fmt.Errorf("function NewOrder: %v", err)
+	//}
 
-	err = verifyClientOrgMatchesPeerOrg(ctx)
+	err := verifyClientOrgMatchesPeerOrg(ctx)
 	if err != nil {
 		return fmt.Errorf("function NewProductInfo error: %v", err)
 	}
@@ -141,13 +145,14 @@ func (h *ContractHandler) NewOrder(ctx contractapi.TransactionContextInterface) 
 	}
 
 	type orderInput struct {
-		OrderNumber    string  `json:"order_number"`
-		BatchNumber    string  `json:"batch_number"`
-		TrackingNumber string  `json:"tracking_number"`
-		Sorter         string  `json:"sorter"` // 分拣员
-		UnitPrice      float32 `json:"unit_price"`
-		Quantity       int     `json:"quantity"`
-		Collection     string  `json:"collection"`
+		OrderNumber string `json:"order_number"`
+		//BatchNumber    string  `json:"batch_number"`
+		//TrackingNumber string  `json:"tracking_number"`
+		//Sorter         string  `json:"sorter"` // 分拣员
+		//UnitPrice   float32 `json:"unit_price"`
+		Quantity    int    `json:"quantity"`
+		Collection  string `json:"collection"`
+		ProductName string `json:"product_name"`
 	}
 
 	input := &orderInput{}
@@ -163,31 +168,17 @@ func (h *ContractHandler) NewOrder(ctx contractapi.TransactionContextInterface) 
 		return fmt.Errorf("function NewOrder: please specify a collection name")
 	}
 
-	//check if batch number exists
-	prodCompositeKey, err := ctx.GetStub().CreateCompositeKey(CompositeKeyProduct, []string{input.BatchNumber})
-	if err != nil {
-		return err
-	}
-
-	bytes, err := ctx.GetStub().GetState(prodCompositeKey)
-	if err != nil {
-		return err
-	}
-
-	if bytes == nil {
-		//return error if not found the batch number
-		return fmt.Errorf("function NewOrder: batch number %s not found", bytes)
-	}
-
 	//3. Create order and store the record to the sideDB
 	order := &OrderInfo{
-		//OrderNumber:    input.OrderNumber,
-		BatchNumber:    input.BatchNumber,
-		TrackingNumber: input.TrackingNumber,
-		Sorter:         input.Sorter,
-		UnitPrice:      input.UnitPrice,
-		Quantity:       input.Quantity,
-		Client:         "",
+		OrderID: input.OrderNumber,
+		//BatchNumber:    input.BatchNumber,
+		//TrackingNumber: input.TrackingNumber,
+		//Sorter:         input.Sorter,
+		//UnitPrice:   input.UnitPrice,
+		Quantity:    input.Quantity,
+		Client:      "",
+		Status:      OrderStatusUnaccepted,
+		ProductName: input.ProductName,
 	}
 	if input.Collection == CollectionTransaction1 {
 		order.Client = MSPIDRetailer1
@@ -195,14 +186,25 @@ func (h *ContractHandler) NewOrder(ctx contractapi.TransactionContextInterface) 
 		order.Client = MSPIDRetailer2
 	}
 
-	orderJSONBytes, err := json.Marshal(order)
-	if err != nil {
-		return fmt.Errorf("function NewOrder: failed to marshal into JSON: %v", err)
-	}
 	orderCompositeKey, err := ctx.GetStub().CreateCompositeKey(CompositeKeyOrder, []string{input.OrderNumber})
 	if err != nil {
 		return fmt.Errorf("function NewOrder: error creating composite key: %v", err)
 	}
+
+	// check if order number exists
+	bytes, err := ctx.GetStub().GetPrivateData(input.Collection, orderCompositeKey)
+	if err != nil {
+		return fmt.Errorf("function NewOrder: error reading private data: %v", err)
+	}
+	if bytes != nil {
+		return fmt.Errorf("function NewOrder: orderID %s already exists", input.OrderNumber)
+	}
+
+	orderJSONBytes, err := json.Marshal(order)
+	if err != nil {
+		return fmt.Errorf("function NewOrder: failed to marshal into JSON: %v", err)
+	}
+
 	err = ctx.GetStub().PutPrivateData(input.Collection, orderCompositeKey, orderJSONBytes)
 	if err != nil {
 		return fmt.Errorf(
@@ -311,4 +313,115 @@ func (h *ContractHandler) UpdateLogisticRecord(ctx contractapi.TransactionContex
 	}
 
 	return nil
+}
+
+func (h *ContractHandler) AcceptOrder(
+	ctx contractapi.TransactionContextInterface, collection, orderID string) error {
+	err := verifyManufacturerMSPID(ctx)
+	if err != nil {
+		return fmt.Errorf("function AcceptOrder: %v", err)
+	}
+
+	err = verifyClientOrgMatchesPeerOrg(ctx)
+	if err != nil {
+		return fmt.Errorf("function AcceptOrder error: %v", err)
+	}
+
+	//1. Get arguments from the transient
+	transientMap, err := ctx.GetStub().GetTransient()
+	if err != nil {
+		return fmt.Errorf("function AcceptOrder: error getting transient: %v", err)
+	}
+
+	orderInputJSON, ok := transientMap[TransientKeyAcceptOrderInput]
+	if !ok {
+		return fmt.Errorf("function AcceptOrder: order info not found in the transient map input")
+	}
+
+	type acceptOrderInput struct {
+		BatchNumber    string  `json:"batch_number"`
+		TrackingNumber string  `json:"tracking_number"`
+		Sorter         string  `json:"sorter"` // 分拣员
+		UnitPrice      float32 `json:"unit_price"`
+	}
+
+	input := &acceptOrderInput{}
+	err = json.Unmarshal(orderInputJSON, input)
+	if err != nil {
+		return fmt.Errorf("function AcceptOrder: %v", err)
+	}
+
+	//check if batch number exists
+	prodCompositeKey, err := ctx.GetStub().CreateCompositeKey(CompositeKeyProduct, []string{input.BatchNumber})
+	if err != nil {
+		return fmt.Errorf("function AcceptOrder: %v", err)
+	}
+
+	bytes, err := ctx.GetStub().GetState(prodCompositeKey)
+	if err != nil {
+		return fmt.Errorf("function AcceptOrder: product batch not found: %v", err)
+	}
+
+	if bytes == nil {
+		//return error if not found the batch number
+		return fmt.Errorf("function AcceptOrder: batch number %s not found", bytes)
+	}
+
+	//get order detail
+	orderCompositeKey, err := ctx.GetStub().CreateCompositeKey(CompositeKeyOrder, []string{orderID})
+	if err != nil {
+		return fmt.Errorf("function AcceptOrder: error creating composite key: %v", err)
+	}
+
+	orderDetailJSON, err := ctx.GetStub().GetPrivateData(collection, orderCompositeKey)
+	if err != nil {
+		return fmt.Errorf("function AcceptOrder: error query: %v", err)
+	}
+
+	orderDetail := &OrderInfo{}
+	err = json.Unmarshal(orderDetailJSON, orderDetail)
+	if err != nil {
+		return fmt.Errorf("function AcceptOrder: error unmarshaling JSON: %v", err)
+	}
+
+	//fulfill rest info
+	orderDetail.Status = OrderStatusAccepted
+	orderDetail.BatchNumber = input.BatchNumber
+	orderDetail.TrackingNumber = input.TrackingNumber
+	orderDetail.Sorter = input.Sorter
+	orderDetail.UnitPrice = input.UnitPrice
+
+	orderBytes, err := json.Marshal(orderDetail)
+	if err != nil {
+		return fmt.Errorf("function AcceptOrder: error marshaling order detail: %v", err)
+	}
+
+	return ctx.GetStub().PutPrivateData(collection, orderCompositeKey, orderBytes)
+}
+
+func (h *ContractHandler) RejectOrderRequest(
+	ctx contractapi.TransactionContextInterface, collection, orderID string) error {
+	orderCompositeKey, err := ctx.GetStub().CreateCompositeKey(CompositeKeyOrder, []string{orderID})
+	if err != nil {
+		return fmt.Errorf("function RejectOrderRequest: error creating composite key: %v", err)
+	}
+
+	orderDetailJSON, err := ctx.GetStub().GetPrivateData(collection, orderCompositeKey)
+	if err != nil {
+		return fmt.Errorf("function RejectOrderRequest: error creating composite key: %v", err)
+	}
+
+	orderDetail := &OrderInfo{}
+	err = json.Unmarshal(orderDetailJSON, orderDetail)
+	if err != nil {
+		return fmt.Errorf("function RejectOrderRequest: error unmarshaling json: %v", err)
+	}
+
+	orderDetail.Status = OrderStatusRejected
+	bytes, err := json.Marshal(orderDetail)
+	if err != nil {
+		return fmt.Errorf("function RejectOrderRequest: error marshaling json: %v", err)
+	}
+
+	return ctx.GetStub().PutPrivateData(collection, orderCompositeKey, bytes)
 }

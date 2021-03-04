@@ -44,6 +44,33 @@ func (h *ContractHandler) ReadProductInfo(ctx contractapi.TransactionContextInte
 	return info, nil
 }
 
+func (h *ContractHandler) ReadProductInfoByProductName(
+	ctx contractapi.TransactionContextInterface, keyword string) ([]*ProductInfo, error) {
+	query := fmt.Sprintf(`{"selector":{"name":"%s"}}`, keyword)
+	iterator, err := ctx.GetStub().GetQueryResult(query)
+	if err != nil {
+		return nil, fmt.Errorf("function ReadProductInfoByProductName: %v", err)
+	}
+
+	var products []*ProductInfo
+
+	for iterator.HasNext() {
+		response, err := iterator.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		prodInfo := &ProductInfo{}
+		err = json.Unmarshal(response.Value, prodInfo)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, prodInfo)
+	}
+
+	return products, nil
+}
+
 // ReadOrderInfo returns order details with params provided
 func (h *ContractHandler) ReadOrderInfo(ctx contractapi.TransactionContextInterface,
 	orderNum, collectionName string) (*OrderInfo, error) {
@@ -120,4 +147,43 @@ func (h *ContractHandler) ReadLogisticsPriRecord(ctx contractapi.TransactionCont
 		Private: privateLogisticsRecord,
 	}
 	return compositeRecord, err
+}
+
+func (h *ContractHandler) GetOrdersUnaccepted(
+	ctx contractapi.TransactionContextInterface, collection string) ([]*OrderInfo, error) {
+	err := verifyClientOrgMatchesPeerOrg(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("function ReadLogisticsPriRecord: %v", err)
+	}
+
+	if collection == "" {
+		collection = CollectionTransaction1
+	}
+
+	query := fmt.Sprintf(`{"selector":{"status":{"$eq":"%s"}}}`, OrderStatusUnaccepted)
+
+	iterator, err := ctx.GetStub().GetPrivateDataQueryResult(collection, query)
+	if err != nil {
+		return nil, fmt.Errorf("function GetOrdersUnaccepted: failed to query world state: %v", err)
+	}
+	defer iterator.Close()
+
+	var orders []*OrderInfo
+
+	for iterator.HasNext() {
+		response, err := iterator.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		order := &OrderInfo{}
+		err = json.Unmarshal(response.Value, order)
+		if err != nil {
+			return nil, fmt.Errorf("function GetOrdersUnaccepted: failed to unmarshal JSON: %v", err)
+		}
+
+		orders = append(orders, order)
+	}
+
+	return orders, nil
 }
